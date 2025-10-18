@@ -1,9 +1,14 @@
 server:
-  port: 9093
+  port: 9091
 
 spring:
   application:
     name: athena-user-service
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/athena_user_db
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
 eureka:
   instance:
