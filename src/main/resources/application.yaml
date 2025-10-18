@@ -9,6 +9,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/athena_user_db
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
 
 eureka:
   instance:
