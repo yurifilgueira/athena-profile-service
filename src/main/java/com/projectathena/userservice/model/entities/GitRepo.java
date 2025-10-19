@@ -6,7 +6,7 @@ import java.util.Objects;
 
 @Table(name = "git_repositories")
 @Entity
-public class GitRepository {
+public class GitRepo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -18,10 +18,10 @@ public class GitRepository {
     @Column(nullable = false)
     private String url;
 
-    public GitRepository() {
+    public GitRepo() {
     }
 
-    public GitRepository(String id, String name, String owner, String url) {
+    public GitRepo(String id, String name, String owner, String url) {
         this.id = id;
         this.name = name;
         this.owner = owner;
@@ -63,7 +63,7 @@ public class GitRepository {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        GitRepository that = (GitRepository) o;
+        GitRepo that = (GitRepo) o;
         return Objects.equals(id, that.id);
     }
 
