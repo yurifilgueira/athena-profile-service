@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.yuri</groupId>
-    <artifactId>athena-user-service</artifactId>
+    <artifactId>athena-profile-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>athena-user-service</name>
     <description>athena-user-service</description>
