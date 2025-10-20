@@ -2,8 +2,10 @@ package com.projectathena.userservice.services;
 
 import com.projectathena.userservice.calculators.Calculator;
 import com.projectathena.userservice.calculators.CalculatorFactory;
+import com.projectathena.userservice.clients.MineWorkerClient;
 import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
 import com.projectathena.userservice.model.dto.MiningResult;
+import com.projectathena.userservice.model.dto.requests.MetricRequest;
 import com.projectathena.userservice.model.enums.MetricType;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +18,22 @@ import java.util.Map;
 public class MetricService {
 
     private final CalculatorFactory calculatorFactory;
+    private final MineWorkerClient mineWorkerClient;
 
-    public MetricService(CalculatorFactory calculatorFactory) {
+    public MetricService(CalculatorFactory calculatorFactory, MineWorkerClient mineWorkerClient) {
         this.calculatorFactory = calculatorFactory;
+        this.mineWorkerClient = mineWorkerClient;
     }
 
-    public List<DeveloperMetricInfo> mineAllMetrics(MiningResult miningResult) {
+    public List<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
+
+        MiningResult miningResult = mineWorkerClient.getMiningResult(
+                request.userName(),
+                request.userEmail(),
+                request.gitRepositoryName(),
+                request.gitRepositoryOwner()
+        );
+
         Map<String, DeveloperMetricInfo> aggregatedMetrics = new HashMap<>();
 
         for (MetricType metricType : MetricType.getAll()) {

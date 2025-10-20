@@ -27,15 +27,15 @@ public class CommitPerDeveloperCalculator extends Calculator {
 
             DeveloperMetricInfo developerInfo = metricsByDeveloper.computeIfAbsent(username, key -> {
                 DeveloperMetricInfo newInfo = new DeveloperMetricInfo();
-                newInfo.setMetricType(getMetricType());
                 newInfo.setDeveloperUsername(key);
                 newInfo.setDeveloperEmail(email);
-                newInfo.addMetric(new BigDecimal(0), "quantity of commits");
+                newInfo.addMetric(new BigDecimal(0), "quantity of commits", getMetricType());
                 return newInfo;
             });
 
             MetricValue commitMetric = developerInfo.getMetricValues().getFirst();
             commitMetric.setValue(commitMetric.getValue().add(new BigDecimal(1)));
+            commitMetric.setMetricType(getMetricType());
         });
 
         return new ArrayList<>(metricsByDeveloper.values());

@@ -3,23 +3,23 @@ package com.projectathena.userservice.model.dto;
 import com.projectathena.userservice.model.enums.MetricType;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DeveloperMetricInfo {
 
     private String developerUsername;
     private String developerEmail;
-    private List<MetricValue> metricValues;
-    private MetricType metricType;
+    private final List<MetricValue> metricValues;
 
     public DeveloperMetricInfo() {
+        metricValues = new ArrayList<>();
     }
 
-    public DeveloperMetricInfo(String developerUsername, String developerEmail, List<MetricValue> metricValues, MetricType metricType) {
+    public DeveloperMetricInfo(String developerUsername, String developerEmail, List<MetricValue> metricValues) {
         this.developerUsername = developerUsername;
         this.developerEmail = developerEmail;
         this.metricValues = metricValues;
-        this.metricType = metricType;
     }
 
     public String getDeveloperUsername() {
@@ -42,15 +42,7 @@ public class DeveloperMetricInfo {
         return metricValues;
     }
 
-    public MetricType getMetricType() {
-        return metricType;
-    }
-
-    public void setMetricType(MetricType metricType) {
-        this.metricType = metricType;
-    }
-
-    public void addMetric(BigDecimal value, String description) {
-        this.metricValues.add(new MetricValue(value, description));
+    public void addMetric(BigDecimal value, String description, MetricType metricType) {
+        this.metricValues.add(new MetricValue(value, description, metricType));
     }
 }

@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: athena-user-service
+    name: athena-profile-service
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/athena_user_db
@@ -12,6 +12,16 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+#logging:
+#  level:
+#    com.projectathena.userservice.clients.MineWorkerClient: DEBUG
+#
+#feign:
+#  client:
+#    config:
+#      athena-mine-worker-service:
+#          loggerLevel: full
 
 eureka:
   instance:

@@ -2,11 +2,16 @@ package com.projectathena.userservice.model.dto;
 import com.projectathena.userservice.model.enums.MiningStatus;
 import jakarta.persistence.*;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class MiningResult {
+public class MiningResult implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private String id;
     private String jobId;

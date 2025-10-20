@@ -29,11 +29,10 @@ public class LocPerDeveloperCalculator extends Calculator {
 
             DeveloperMetricInfo developerInfo = metricsByDeveloper.computeIfAbsent(username, key -> {
                 DeveloperMetricInfo newInfo = new DeveloperMetricInfo();
-                newInfo.setMetricType(getMetricType());
                 newInfo.setDeveloperUsername(key);
                 newInfo.setDeveloperEmail(email);
-                newInfo.addMetric(BigDecimal.ZERO, LINES_ADDED_METRIC);
-                newInfo.addMetric(BigDecimal.ZERO, LINES_DELETED_METRIC);
+                newInfo.addMetric(BigDecimal.ZERO, LINES_ADDED_METRIC, getMetricType());
+                newInfo.addMetric(BigDecimal.ZERO, LINES_DELETED_METRIC, getMetricType());
                 return newInfo;
             });
 
