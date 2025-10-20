@@ -1,6 +1,5 @@
 package com.projectathena.userservice.model.dto;
 import com.projectathena.userservice.model.enums.MiningStatus;
-import jakarta.persistence.*;
 
 import java.io.Serial;
 import java.io.Serializable;

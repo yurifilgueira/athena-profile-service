@@ -25,4 +25,11 @@ public class MetricController {
 
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("/report")
+    public ResponseEntity<?> getMetricsReport(@RequestBody MetricRequest request) {
+        var response = metricService.getMetricReport(request);
+
+        return ResponseEntity.ok().body(response);
+    }
 }
