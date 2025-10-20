@@ -1,12 +1,12 @@
 package com.projectathena.userservice.controllers;
 
+import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
 import com.projectathena.userservice.model.dto.requests.MetricRequest;
 import com.projectathena.userservice.services.MetricService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping(value = "/metrics")
@@ -18,11 +18,20 @@ public class MetricController {
         this.metricService = metricService;
     }
 
-    @GetMapping
-    public ResponseEntity<?> getMetrics(@RequestBody MetricRequest request) {
+    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<DeveloperMetricInfo> getMetrics(
+            @RequestParam String userName,
+            @RequestParam String userEmail,
+            @RequestParam String gitRepositoryName,
+            @RequestParam String gitRepositoryOwner) {
 
-        var response = metricService.mineAllMetrics(request);
-
-        return ResponseEntity.ok().body(response);
+        var request = new MetricRequest(userName, userEmail, gitRepositoryName, gitRepositoryOwner);
+        return metricService.mineAllMetrics(request);
     }
+//    @GetMapping("/report")
+//    public ResponseEntity<?> getMetricsReport(@RequestBody MetricRequest request) {
+//        var response = metricService.getMetricReport(request);
+//
+//        return ResponseEntity.ok().body(response);
+//    }
 }

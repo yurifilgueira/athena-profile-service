@@ -2,43 +2,55 @@ package com.projectathena.userservice.calculators.impl;
 
 import com.projectathena.userservice.calculators.Calculator;
 import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
-import com.projectathena.userservice.model.dto.MetricValue;
+import com.projectathena.userservice.model.dto.MiningCommit;
 import com.projectathena.userservice.model.dto.MiningResult;
 import com.projectathena.userservice.model.enums.MetricType;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class CommitPerDeveloperCalculator extends Calculator {
 
     @Override
-    public List<DeveloperMetricInfo> calculateMetric(MiningResult miningResult) {
+    public Flux<DeveloperMetricInfo> calculateMetric(Mono<MiningResult> miningResultMono) {
+        return miningResultMono
+                .flatMapMany(miningResult -> Flux.fromIterable(miningResult.getCommits()))
+                .filter(commit -> commit.getAuthor() != null && commit.getAuthor().getLogin() != null)
+                .groupBy(miningCommit -> miningCommit.getAuthor().getLogin())
+                .flatMap(groupedFlux ->
+                        groupedFlux.reduce(new CommitAccumulator(), CommitAccumulator::accumulate)
+                                .filter(acc -> Objects.nonNull(acc.firstCommit))
+                                .map(accumulator -> {
+                                    var firstCommit = accumulator.firstCommit;
+                                    var developerInfo = new DeveloperMetricInfo();
+                                    developerInfo.setDeveloperUsername(firstCommit.getAuthor().getLogin());
+                                    developerInfo.setDeveloperEmail(firstCommit.getAuthor().getEmail());
 
-        Map<String, DeveloperMetricInfo> metricsByDeveloper = new HashMap<>();
+                                    developerInfo.addMetric(
+                                            new BigDecimal(accumulator.count),
+                                            "quantity of commits",
+                                            getMetricType()
+                                    );
+                                    return developerInfo;
+                                })
+                );
+    }
 
-        miningResult.getCommits().forEach(miningCommit -> {
-            String username = miningCommit.getAuthor().getLogin();
-            String email = miningCommit.getAuthor().getEmail();
+    private static class CommitAccumulator {
+        MiningCommit firstCommit;
+        long count = 0L;
 
-            DeveloperMetricInfo developerInfo = metricsByDeveloper.computeIfAbsent(username, key -> {
-                DeveloperMetricInfo newInfo = new DeveloperMetricInfo();
-                newInfo.setDeveloperUsername(key);
-                newInfo.setDeveloperEmail(email);
-                newInfo.addMetric(new BigDecimal(0), "quantity of commits", getMetricType());
-                return newInfo;
-            });
-
-            MetricValue commitMetric = developerInfo.getMetricValues().getFirst();
-            commitMetric.setValue(commitMetric.getValue().add(new BigDecimal(1)));
-            commitMetric.setMetricType(getMetricType());
-        });
-
-        return new ArrayList<>(metricsByDeveloper.values());
+        public CommitAccumulator accumulate(MiningCommit currentCommit) {
+            if (this.firstCommit == null) {
+                this.firstCommit = currentCommit;
+            }
+            this.count++;
+            return this;
+        }
     }
 
     @Override

@@ -1,9 +1,10 @@
 package com.projectathena.userservice.model.dto;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.projectathena.userservice.model.enums.MiningStatus;
-import jakarta.persistence.*;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -17,8 +18,8 @@ public class MiningResult implements Serializable {
     private String jobId;
     private String repositoryOwner;
     private String repositoryName;
-    private Date startedAt;
-    private Date lastUpdatedAt;
+    private Instant startedAt;
+    private Instant lastUpdatedAt;
     private Integer totalCommits;
     private MiningStatus status;
     private String lastCursor;
@@ -59,19 +60,19 @@ public class MiningResult implements Serializable {
         this.repositoryName = repositoryName;
     }
 
-    public Date getStartedAt() {
+    public Instant getStartedAt() {
         return startedAt;
     }
 
-    public void setStartedAt(Date startedAt) {
+    public void setStartedAt(Instant startedAt) {
         this.startedAt = startedAt;
     }
 
-    public Date getLastUpdatedAt() {
+    public Instant getLastUpdatedAt() {
         return lastUpdatedAt;
     }
 
-    public void setLastUpdatedAt(Date lastUpdatedAt) {
+    public void setLastUpdatedAt(Instant lastUpdatedAt) {
         this.lastUpdatedAt = lastUpdatedAt;
     }
 

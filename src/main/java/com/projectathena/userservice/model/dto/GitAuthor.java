@@ -1,9 +1,10 @@
 package com.projectathena.userservice.model.dto;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 
@@ -14,7 +15,7 @@ public class GitAuthor implements Serializable {
 
     private String id;
     private String avatarUrl;
-    private Date date;
+    private Instant date;
     private String email;
     private String name;
     private String userId;
@@ -39,11 +40,11 @@ public class GitAuthor implements Serializable {
         this.avatarUrl = avatarUrl;
     }
 
-    public Date getDate() {
+    public Instant getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(Instant date) {
         this.date = date;
     }
 

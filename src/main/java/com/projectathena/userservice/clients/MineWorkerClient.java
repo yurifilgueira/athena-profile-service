@@ -1,21 +1,30 @@
 package com.projectathena.userservice.clients;
 
-import com.projectathena.userservice.configs.FeignClientConfiguration;
 import com.projectathena.userservice.model.dto.MiningResult;
-import com.projectathena.userservice.model.dto.requests.MetricRequest;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
-@FeignClient(name = "athena-mine-worker-service", configuration = FeignClientConfiguration.class)
-public interface MineWorkerClient {
+@Component
+public class MineWorkerClient {
 
-    @GetMapping( "/mining-results")
-    MiningResult getMiningResult(
-            @RequestParam String userName,
-            @RequestParam String userEmail,
-            @RequestParam String gitRepositoryName,
-            @RequestParam String gitRepositoryOwner);
+    private final WebClient webClient;
+
+    public MineWorkerClient(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.baseUrl("http://athena-mine-worker-service").build();
+    }
+
+    public Mono<MiningResult> getMiningResult(String userName, String userEmail, String gitRepositoryName, String gitRepositoryOwner) {
+        return this.webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/mining-results")
+                        .queryParam("userName", userName)
+                        .queryParam("userEmail", userEmail)
+                        .queryParam("gitRepositoryName", gitRepositoryName)
+                        .queryParam("gitRepositoryOwner", gitRepositoryOwner)
+                        .build())
+                .retrieve()
+                .bodyToMono(MiningResult.class);
+    }
 
 }

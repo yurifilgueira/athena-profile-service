@@ -1,6 +1,5 @@
 package com.projectathena.userservice.services;
 
-import com.projectathena.userservice.calculators.Calculator;
 import com.projectathena.userservice.calculators.CalculatorFactory;
 import com.projectathena.userservice.clients.MineWorkerClient;
 import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
@@ -8,11 +7,8 @@ import com.projectathena.userservice.model.dto.MiningResult;
 import com.projectathena.userservice.model.dto.requests.MetricRequest;
 import com.projectathena.userservice.model.enums.MetricType;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class MetricService {
@@ -25,42 +21,30 @@ public class MetricService {
         this.mineWorkerClient = mineWorkerClient;
     }
 
-    public List<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
-
-        MiningResult miningResult = mineWorkerClient.getMiningResult(
+    public Flux<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
+        Mono<MiningResult> miningResultMono = mineWorkerClient.getMiningResult(
                 request.userName(),
                 request.userEmail(),
                 request.gitRepositoryName(),
                 request.gitRepositoryOwner()
         );
 
-        Map<String, DeveloperMetricInfo> aggregatedMetrics = new HashMap<>();
+        return Flux.fromIterable(MetricType.getAll())
+                .flatMap(metricType ->
+                        Mono.justOrEmpty(calculatorFactory.getCalculator(metricType))
+                                .switchIfEmpty(Mono.error(new IllegalStateException("No calculator for metric: " + metricType)))
+                )
 
-        for (MetricType metricType : MetricType.getAll()) {
-            Calculator calculator = calculatorFactory.getCalculator(metricType)
-                    .orElseThrow(() -> new IllegalStateException("No calculator found for metric: " + metricType));
-
-            List<DeveloperMetricInfo> partialResults = calculator.calculateMetric(miningResult);
-
-            mergeResults(aggregatedMetrics, partialResults);
-        }
-
-        return new ArrayList<>(aggregatedMetrics.values());
+                .flatMap(calculator -> calculator.calculateMetric(miningResultMono))
+                .groupBy(DeveloperMetricInfo::getDeveloperUsername)
+                .flatMap(groupedFlux -> groupedFlux.reduce(this::mergeDeveloperInfo));
     }
 
-    private void mergeResults(Map<String, DeveloperMetricInfo> targetMap, List<DeveloperMetricInfo> partialResults) {
-        for (DeveloperMetricInfo partialInfo : partialResults) {
-            String username = partialInfo.getDeveloperUsername();
-
-            DeveloperMetricInfo finalInfo = targetMap.computeIfAbsent(username, key -> {
-                DeveloperMetricInfo newInfo = new DeveloperMetricInfo();
-                newInfo.setDeveloperUsername(key);
-                newInfo.setDeveloperEmail(partialInfo.getDeveloperEmail());
-                return newInfo;
-            });
-
-            finalInfo.getMetricValues().addAll(partialInfo.getMetricValues());
+    private DeveloperMetricInfo mergeDeveloperInfo(DeveloperMetricInfo acc, DeveloperMetricInfo current) {
+        acc.getMetricValues().addAll(current.getMetricValues());
+        if (acc.getDeveloperEmail() == null) {
+            acc.setDeveloperEmail(current.getDeveloperEmail());
         }
+        return acc;
     }
-
 }
