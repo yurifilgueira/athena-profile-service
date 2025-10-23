@@ -3,7 +3,7 @@ package com.projectathena.userservice.services;
 import com.projectathena.userservice.calculators.CalculatorFactory;
 import com.projectathena.userservice.clients.MineWorkerClient;
 import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
-import com.projectathena.userservice.model.dto.MiningResult;
+import com.projectathena.userservice.model.dto.MiningCommit;
 import com.projectathena.userservice.model.dto.requests.MetricRequest;
 import com.projectathena.userservice.model.enums.MetricType;
 import org.springframework.stereotype.Service;
@@ -22,29 +22,42 @@ public class MetricService {
     }
 
     public Flux<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
-        Mono<MiningResult> miningResultMono = mineWorkerClient.getMiningResult(
-                request.userName(),
-                request.userEmail(),
-                request.gitRepositoryName(),
-                request.gitRepositoryOwner()
-        );
+        Flux<MiningCommit> sharedMiningCommitFlux = mineWorkerClient.getMiningResult(
+                        request.userName(),
+                        request.userEmail(),
+                        request.gitRepositoryName(),
+                        request.gitRepositoryOwner()
+                )
+                .share();
 
         return Flux.fromIterable(MetricType.getAll())
                 .flatMap(metricType ->
                         Mono.justOrEmpty(calculatorFactory.getCalculator(metricType))
                                 .switchIfEmpty(Mono.error(new IllegalStateException("No calculator for metric: " + metricType)))
                 )
-
-                .flatMap(calculator -> calculator.calculateMetric(miningResultMono))
+                .flatMap(calculator -> calculator.calculateMetric(sharedMiningCommitFlux))
                 .groupBy(DeveloperMetricInfo::getDeveloperUsername)
                 .flatMap(groupedFlux -> groupedFlux.reduce(this::mergeDeveloperInfo));
     }
 
     private DeveloperMetricInfo mergeDeveloperInfo(DeveloperMetricInfo acc, DeveloperMetricInfo current) {
-        acc.getMetricValues().addAll(current.getMetricValues());
         if (acc.getDeveloperEmail() == null) {
             acc.setDeveloperEmail(current.getDeveloperEmail());
         }
+
+        current.getMetricValues().forEach(currentMetric -> {
+
+            acc.getMetricValues().stream()
+                    .filter(accMetric ->
+                            accMetric.getMetricType().equals(currentMetric.getMetricType()) &&
+                                    accMetric.getDescription().equals(currentMetric.getDescription()))
+                    .findFirst()
+                    .ifPresentOrElse(
+                            accMetric -> accMetric.setValue(accMetric.getValue().add(currentMetric.getValue())),
+                            () -> acc.getMetricValues().add(currentMetric)
+                    );
+        });
+
         return acc;
     }
 }
