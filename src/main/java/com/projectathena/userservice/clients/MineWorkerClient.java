@@ -1,25 +1,39 @@
 package com.projectathena.userservice.clients;
 
-import com.projectathena.userservice.configs.FeignClientConfiguration;
+import com.projectathena.userservice.model.dto.MiningCommit;
 import com.projectathena.userservice.model.dto.MiningResult;
-import com.projectathena.userservice.model.dto.ReportResult;
-import com.projectathena.userservice.model.dto.requests.MetricRequest;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.graphql.client.HttpGraphQlClient;
+import org.springframework.stereotype.Component;
 
-@FeignClient(name = "athena-mine-worker-service", configuration = FeignClientConfiguration.class)
-public interface MineWorkerClient {
+import java.util.List;
 
-    @GetMapping( "/mining-results")
-    MiningResult getMiningResult(
-            @RequestParam String userName,
-            @RequestParam String userEmail,
-            @RequestParam String gitRepositoryName,
-            @RequestParam String gitRepositoryOwner
-    );
+@Component
+public class MineWorkerClient {
+
+    private final HttpGraphQlClient client;
+
+    public MineWorkerClient(@Value("${client.service.url}") String baseUrl) {
+        this.client = HttpGraphQlClient.builder()
+                .webClient(b -> b.baseUrl(baseUrl + "/graphql"))
+                .build();
+    }
+
+    public List<MiningCommit> getMiningResult(
+            String userName,
+            String userEmail,
+            String gitRepositoryName,
+            String gitRepositoryOwner
+    ) {
+
+        return client.documentName("getMiningResult")
+                .variable("userName", userName)
+                .variable("userEmail", userEmail)
+                .variable("gitRepositoryName", gitRepositoryName)
+                .variable("gitRepositoryOwner", gitRepositoryOwner)
+                .retrieveSync("getMiningResult.commits")
+                .toEntityList(MiningCommit.class);
+    }
 
 
 }

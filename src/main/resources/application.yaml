@@ -1,6 +1,10 @@
 server:
   port: 9091
 
+client:
+  service:
+    url: http://localhost:8080/athena-mine-worker-service
+
 spring:
   application:
     name: athena-profile-service

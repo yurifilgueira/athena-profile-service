@@ -5,7 +5,7 @@ import com.projectathena.userservice.calculators.CalculatorFactory;
 import com.projectathena.userservice.clients.MineWorkerClient;
 import com.projectathena.userservice.clients.ReportClient;
 import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
-import com.projectathena.userservice.model.dto.MiningResult;
+import com.projectathena.userservice.model.dto.MiningCommit;
 import com.projectathena.userservice.model.dto.ReportResult;
 import com.projectathena.userservice.model.dto.requests.MetricRequest;
 import com.projectathena.userservice.model.enums.MetricType;
@@ -31,7 +31,7 @@ public class MetricService {
 
     public List<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
 
-        MiningResult miningResult = mineWorkerClient.getMiningResult(
+        List<MiningCommit> miningResult = mineWorkerClient.getMiningResult(
                 request.userName(),
                 request.userEmail(),
                 request.gitRepositoryName(),

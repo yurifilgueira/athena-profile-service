@@ -1,0 +1,23 @@
+query GetMiningResult(
+    $userName: String!
+    $userEmail: String!
+    $gitRepositoryName: String!
+    $gitRepositoryOwner: String!
+) {
+    getMiningResult(
+        userName: $userName
+        userEmail: $userEmail
+        gitRepositoryName: $gitRepositoryName
+        gitRepositoryOwner: $gitRepositoryOwner
+    ) {
+        commits {
+            additions
+            deletions
+            author {
+                email
+                name
+                login
+            }
+        }
+    }
+}

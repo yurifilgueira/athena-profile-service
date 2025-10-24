@@ -3,6 +3,7 @@ package com.projectathena.userservice.calculators.impl;
 import com.projectathena.userservice.calculators.Calculator;
 import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
 import com.projectathena.userservice.model.dto.MetricValue;
+import com.projectathena.userservice.model.dto.MiningCommit;
 import com.projectathena.userservice.model.dto.MiningResult;
 import com.projectathena.userservice.model.enums.MetricType;
 import org.springframework.stereotype.Component;
@@ -17,10 +18,10 @@ public class LocPerDeveloperCalculator extends Calculator {
     private final static String LINES_DELETED_METRIC = "deletions";
 
     @Override
-    public List<DeveloperMetricInfo> calculateMetric(MiningResult miningResult) {
+    public List<DeveloperMetricInfo> calculateMetric(List<MiningCommit> miningCommits) {
         Map<String, DeveloperMetricInfo> metricsByDeveloper = new HashMap<>();
 
-        miningResult.getCommits().forEach(miningCommit -> {
+        miningCommits.forEach(miningCommit -> {
             String username = miningCommit.getAuthor().getLogin();
             String email = miningCommit.getAuthor().getEmail();
 
