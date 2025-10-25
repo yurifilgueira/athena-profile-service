@@ -1,0 +1,3 @@
+type Query {
+    getMetrics(userName: String,userEmail: String, gitRepositoryName: String, gitRepositoryOwner: String): [DeveloperMetricInfo]
+}
