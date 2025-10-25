@@ -3,10 +3,7 @@ package com.projectathena.userservice.controllers;
 import com.projectathena.userservice.model.dto.requests.MetricRequest;
 import com.projectathena.userservice.services.MetricService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/metrics")
@@ -19,8 +16,14 @@ public class MetricController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getMetrics(@RequestBody MetricRequest request) {
+    public ResponseEntity<?> getMetrics(
+            @RequestParam String userName,
+            @RequestParam String userEmail,
+            @RequestParam String gitRepositoryName,
+            @RequestParam String gitRepositoryOwner
+    ) {
 
+        MetricRequest request = new MetricRequest(userName, userEmail, gitRepositoryName, gitRepositoryOwner);
         var response = metricService.mineAllMetrics(request);
 
         return ResponseEntity.ok().body(response);
