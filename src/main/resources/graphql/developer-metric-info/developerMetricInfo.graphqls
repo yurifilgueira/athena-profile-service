@@ -1,0 +1,5 @@
+type DeveloperMetricInfo {
+    developerUsername: String,
+    developerEmail: String,
+    metricValues: [MetricValue]!
+}

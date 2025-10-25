@@ -1,0 +1,10 @@
+type MetricValue {
+    value: Float!,
+    description: String!,
+    metricType: MetricType!
+}
+
+enum MetricType {
+    COMMIT_PER_DEVELOPER,
+    LOC_PER_DEVELOPER
+}
