@@ -2,9 +2,11 @@ package com.projectathena.userservice.services;
 
 import com.projectathena.userservice.calculators.CalculatorFactory;
 import com.projectathena.userservice.clients.MineWorkerClient;
+import com.projectathena.userservice.clients.ReportClient;
 import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
 import com.projectathena.userservice.model.dto.MiningCommit;
 import com.projectathena.userservice.model.dto.requests.MetricRequest;
+import com.projectathena.userservice.model.dto.responses.ReportResponse;
 import com.projectathena.userservice.model.enums.MetricType;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -15,10 +17,12 @@ public class MetricService {
 
     private final CalculatorFactory calculatorFactory;
     private final MineWorkerClient mineWorkerClient;
+    private final ReportClient reportClient;
 
-    public MetricService(CalculatorFactory calculatorFactory, MineWorkerClient mineWorkerClient) {
+    public MetricService(CalculatorFactory calculatorFactory, MineWorkerClient mineWorkerClient, ReportClient reportClient) {
         this.calculatorFactory = calculatorFactory;
         this.mineWorkerClient = mineWorkerClient;
+        this.reportClient = reportClient;
     }
 
     public Flux<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
@@ -59,5 +63,10 @@ public class MetricService {
         });
 
         return acc;
+    }
+
+    public Flux<ReportResponse> getMetricReport(MetricRequest request) {
+        return mineAllMetrics(request).collectList()
+                .flatMapMany(reportClient::getReport);
     }
 }

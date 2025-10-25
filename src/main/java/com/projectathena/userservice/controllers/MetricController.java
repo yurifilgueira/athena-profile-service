@@ -2,6 +2,7 @@ package com.projectathena.userservice.controllers;
 
 import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
 import com.projectathena.userservice.model.dto.requests.MetricRequest;
+import com.projectathena.userservice.model.dto.responses.ReportResponse;
 import com.projectathena.userservice.services.MetricService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +29,8 @@ public class MetricController {
         var request = new MetricRequest(userName, userEmail, gitRepositoryName, gitRepositoryOwner);
         return metricService.mineAllMetrics(request);
     }
-//    @GetMapping("/report")
-//    public ResponseEntity<?> getMetricsReport(@RequestBody MetricRequest request) {
-//        var response = metricService.getMetricReport(request);
-//
-//        return ResponseEntity.ok().body(response);
-//    }
+    @GetMapping(value = "/report", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ReportResponse> getMetricsReport(@RequestBody MetricRequest request) {
+        return metricService.getMetricReport(request);
+    }
 }

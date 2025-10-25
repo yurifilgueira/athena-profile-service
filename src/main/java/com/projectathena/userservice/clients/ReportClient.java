@@ -1,22 +1,28 @@
-//package com.projectathena.userservice.clients;
-//
-//import com.projectathena.userservice.configs.FeignClientConfiguration;
-//import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
-//import com.projectathena.userservice.model.dto.MiningResult;
-//import com.projectathena.userservice.model.dto.ReportResult;
-//import com.projectathena.userservice.model.dto.requests.MetricRequest;
-//import org.springframework.cloud.openfeign.FeignClient;
-//import org.springframework.web.bind.annotation.GetMapping;
-//import org.springframework.web.bind.annotation.PostMapping;
-//import org.springframework.web.bind.annotation.RequestBody;
-//import org.springframework.web.bind.annotation.RequestParam;
-//
-//import java.util.List;
-//
-//@FeignClient(name = "athena-report-service", configuration = FeignClientConfiguration.class)
-//public interface ReportClient {
-//
-//    @PostMapping("/reports")
-//    ReportResult createReport(@RequestBody List<DeveloperMetricInfo> infos);
-//
-//}
+package com.projectathena.userservice.clients;
+
+import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
+import com.projectathena.userservice.model.dto.MiningCommit;
+import com.projectathena.userservice.model.dto.responses.ReportResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+
+import java.util.List;
+
+@Component
+public class ReportClient {
+
+    private final WebClient webClient;
+
+    public ReportClient(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.baseUrl("http://athena-report-service").build();
+    }
+
+    public Flux<ReportResponse> getReport(List<DeveloperMetricInfo> developerMetricInfos) {
+        return this.webClient.post()
+                .uri("/reports")
+                .bodyValue(developerMetricInfos)
+                .retrieve()
+                .bodyToFlux(ReportResponse.class);
+    }
+}
