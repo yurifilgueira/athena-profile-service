@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: athena-profile-service
+  graphql:
+    websocket:
+      path: "/graphql"
 #  openfeign:
 #    client:
 #      config:

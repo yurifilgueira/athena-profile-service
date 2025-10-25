@@ -3,13 +3,16 @@ package com.projectathena.userservice.controllers;
 import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
 import com.projectathena.userservice.model.dto.requests.MetricRequest;
 import com.projectathena.userservice.services.MetricService;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SubscriptionMapping;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
-@RestController
-@RequestMapping(value = "/metrics")
+@Controller
 public class MetricController {
 
     private final MetricService metricService;
@@ -18,12 +21,12 @@ public class MetricController {
         this.metricService = metricService;
     }
 
-    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @SubscriptionMapping
     public Flux<DeveloperMetricInfo> getMetrics(
-            @RequestParam String userName,
-            @RequestParam String userEmail,
-            @RequestParam String gitRepositoryName,
-            @RequestParam String gitRepositoryOwner) {
+            @Argument String userName,
+            @Argument String userEmail,
+            @Argument String gitRepositoryName,
+            @Argument String gitRepositoryOwner) {
 
         var request = new MetricRequest(userName, userEmail, gitRepositoryName, gitRepositoryOwner);
         return metricService.mineAllMetrics(request);
