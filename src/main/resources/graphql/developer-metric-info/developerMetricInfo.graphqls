@@ -3,3 +3,9 @@ type DeveloperMetricInfo {
     developerEmail: String,
     metricValues: [MetricValue]!
 }
+
+input DeveloperMetricInfoInput {
+    developerUsername: String,
+    developerEmail: String,
+    metricValues: [MetricValueInput]!
+}

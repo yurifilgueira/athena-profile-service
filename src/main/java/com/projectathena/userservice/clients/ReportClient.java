@@ -1,22 +1,29 @@
 package com.projectathena.userservice.clients;
 
-import com.projectathena.userservice.configs.FeignClientConfiguration;
 import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
-import com.projectathena.userservice.model.dto.MiningResult;
-import com.projectathena.userservice.model.dto.ReportResult;
-import com.projectathena.userservice.model.dto.requests.MetricRequest;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import com.projectathena.userservice.model.dto.responses.ReportResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.graphql.client.HttpGraphQlClient;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@FeignClient(name = "athena-report-service", configuration = FeignClientConfiguration.class)
-public interface ReportClient {
+@Component
+public class ReportClient {
 
-    @PostMapping("/reports")
-    ReportResult createReport(@RequestBody List<DeveloperMetricInfo> infos);
+    private final HttpGraphQlClient client;
+
+    public ReportClient(@Value("${client.service.url-report-service}") String baseUrl) {
+        this.client = HttpGraphQlClient.builder()
+                .webClient(b -> b.baseUrl(baseUrl + "/graphql"))
+                .build();
+    }
+
+    public ReportResponse createReport(List<DeveloperMetricInfo> infos) {
+        return client.documentName("getReport")
+                .variable("infos", infos)
+                .retrieveSync("generateReport")
+                .toEntity(ReportResponse.class);
+    }
 
 }

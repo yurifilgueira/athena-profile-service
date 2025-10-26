@@ -13,7 +13,7 @@ public class MineWorkerClient {
 
     private final HttpGraphQlClient client;
 
-    public MineWorkerClient(@Value("${client.service.url}") String baseUrl) {
+    public MineWorkerClient(@Value("${client.service.url-mine-service}") String baseUrl) {
         this.client = HttpGraphQlClient.builder()
                 .webClient(b -> b.baseUrl(baseUrl + "/graphql"))
                 .build();

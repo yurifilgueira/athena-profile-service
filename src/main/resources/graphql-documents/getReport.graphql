@@ -1,0 +1,5 @@
+query generateReport($infos: [DeveloperMetricInfoInput]!) {
+    generateReport(infos: $infos) {
+        content
+  }
+}

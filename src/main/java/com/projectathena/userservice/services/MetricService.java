@@ -4,10 +4,9 @@ import com.projectathena.userservice.calculators.Calculator;
 import com.projectathena.userservice.calculators.CalculatorFactory;
 import com.projectathena.userservice.clients.MineWorkerClient;
 import com.projectathena.userservice.clients.ReportClient;
-import com.projectathena.userservice.model.dto.DeveloperMetricInfo;
-import com.projectathena.userservice.model.dto.MiningCommit;
-import com.projectathena.userservice.model.dto.ReportResult;
+import com.projectathena.userservice.model.dto.*;
 import com.projectathena.userservice.model.dto.requests.MetricRequest;
+import com.projectathena.userservice.model.dto.responses.ReportResponse;
 import com.projectathena.userservice.model.enums.MetricType;
 import org.springframework.stereotype.Service;
 
@@ -67,10 +66,8 @@ public class MetricService {
         }
     }
 
-    public ReportResult getMetricReport(MetricRequest request) {
-
+    public ReportResponse getMetricReport(MetricRequest request) {
         List<DeveloperMetricInfo> result = mineAllMetrics(request);
-
         return reportClient.createReport(result);
     }
 }
