@@ -16,7 +16,7 @@ public class MineWorkerClient {
         this.webClient = webClientBuilder.baseUrl("http://athena-mine-worker-service").build();
     }
 
-    public Flux<MiningCommit> getMiningResult(String userName, String userEmail, String gitRepositoryName, String gitRepositoryOwner) {
+    public Mono<MiningResult> getMiningResult(String userName, String userEmail, String gitRepositoryName, String gitRepositoryOwner) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/mining-results")
@@ -26,7 +26,7 @@ public class MineWorkerClient {
                         .queryParam("gitRepositoryOwner", gitRepositoryOwner)
                         .build())
                 .retrieve()
-                .bodyToFlux(MiningCommit.class);
+                .bodyToMono(MiningResult.class);
     }
 
 }
