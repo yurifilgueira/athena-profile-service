@@ -1,9 +1,17 @@
 server:
   port: 9091
+  address: 0.0.0.0
 
 spring:
   application:
     name: athena-profile-service
+  cloud:
+    openfeign:
+      httpclient:
+        hc5:
+          enabled: true
+        max-connections: 200
+        max-connections-per-route: 100
 #  openfeign:
 #    client:
 #      config:
