@@ -5,6 +5,7 @@ import com.projectathena.userservice.model.enums.MiningStatus;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -18,8 +19,8 @@ public class MiningResult implements Serializable {
     private String jobId;
     private String repositoryOwner;
     private String repositoryName;
-    private Instant startedAt;
-    private Instant lastUpdatedAt;
+    private LocalDateTime startedAt;
+    private LocalDateTime lastUpdatedAt;
     private Integer totalCommits;
     private MiningStatus status;
     private String lastCursor;
@@ -60,19 +61,19 @@ public class MiningResult implements Serializable {
         this.repositoryName = repositoryName;
     }
 
-    public Instant getStartedAt() {
+    public LocalDateTime getStartedAt() {
         return startedAt;
     }
 
-    public void setStartedAt(Instant startedAt) {
+    public void setStartedAt(LocalDateTime startedAt) {
         this.startedAt = startedAt;
     }
 
-    public Instant getLastUpdatedAt() {
+    public LocalDateTime getLastUpdatedAt() {
         return lastUpdatedAt;
     }
 
-    public void setLastUpdatedAt(Instant lastUpdatedAt) {
+    public void setLastUpdatedAt(LocalDateTime lastUpdatedAt) {
         this.lastUpdatedAt = lastUpdatedAt;
     }
 

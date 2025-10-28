@@ -32,19 +32,19 @@ public class MetricService {
     }
 
     public Flux<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
-        Mono<MiningResult> cachedMiningCommits = mineWorkerClient.getMiningResult(
+        Mono<MiningResult> miningResultMono = mineWorkerClient.getMiningResult(
                 request.userName(),
                 request.userEmail(),
                 request.gitRepositoryName(),
                 request.gitRepositoryOwner()
-        ).share();
+        ).cache();
 
         return Flux.fromIterable(MetricType.getAll())
                 .flatMap(metricType ->
                         Mono.justOrEmpty(calculatorFactory.getCalculator(metricType))
                                 .switchIfEmpty(Mono.error(new IllegalStateException("No calculator for metric: " + metricType)))
                 )
-                .flatMap(calculator -> calculator.calculateMetric(cachedMiningCommits.flatMapMany(miningResult -> Flux.fromIterable(miningResult.getCommits()).cache())))
+                .flatMap(calculator -> calculator.calculateMetric(miningResultMono.flatMapMany(miningResult -> Flux.fromIterable(miningResult.getCommits()).share())))
                 .groupBy(DeveloperMetricInfo::getDeveloperUsername)
                 .flatMap(groupedFlux -> groupedFlux.reduce(this::mergeDeveloperInfo));
     }

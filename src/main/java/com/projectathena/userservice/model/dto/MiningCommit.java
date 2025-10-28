@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 
@@ -24,7 +24,7 @@ public class MiningCommit implements Serializable {
     private GitAuthor committer;
     private Boolean authoredByCommitter;
     private String commitUrl;
-    private Instant committedDate;
+    private LocalDateTime committedDate;
 
     public MiningCommit() {
     }
@@ -117,11 +117,11 @@ public class MiningCommit implements Serializable {
         this.commitUrl = commitUrl;
     }
 
-    public Instant getCommittedDate() {
+    public LocalDateTime getCommittedDate() {
         return committedDate;
     }
 
-    public void setCommittedDate(Instant committedDate) {
+    public void setCommittedDate(LocalDateTime committedDate) {
         this.committedDate = committedDate;
     }
 
