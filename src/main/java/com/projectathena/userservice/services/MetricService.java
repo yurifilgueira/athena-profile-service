@@ -9,6 +9,9 @@ import com.projectathena.userservice.model.dto.MiningResult;
 import com.projectathena.userservice.model.dto.ReportResult;
 import com.projectathena.userservice.model.dto.requests.MetricRequest;
 import com.projectathena.userservice.model.enums.MetricType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,6 +25,7 @@ public class MetricService {
     private final CalculatorFactory calculatorFactory;
     private final MineWorkerClient mineWorkerClient;
     private final ReportClient reportClient;
+    private final Logger logger = LoggerFactory.getLogger(MetricService.class);
 
     public MetricService(CalculatorFactory calculatorFactory, MineWorkerClient mineWorkerClient, ReportClient reportClient) {
         this.calculatorFactory = calculatorFactory;
@@ -29,7 +33,11 @@ public class MetricService {
         this.reportClient = reportClient;
     }
 
+    @Cacheable(value = "miningResults", key = "#request")
+
     public List<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
+
+        logger.warn("Executed without cache...");
 
         MiningResult miningResult = mineWorkerClient.getMiningResult(
                 request.userName(),
