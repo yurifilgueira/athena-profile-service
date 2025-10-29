@@ -12,6 +12,10 @@ spring:
   graphql:
     schema:
       locations: "classpath:graphql/**/"
+  data:
+    redis:
+      port: 6379
+      host: localhost
 #  openfeign:
 #    client:
 #      config:

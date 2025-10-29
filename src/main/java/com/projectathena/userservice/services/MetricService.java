@@ -8,6 +8,7 @@ import com.projectathena.userservice.model.dto.*;
 import com.projectathena.userservice.model.dto.requests.MetricRequest;
 import com.projectathena.userservice.model.dto.responses.ReportResponse;
 import com.projectathena.userservice.model.enums.MetricType;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class MetricService {
         this.reportClient = reportClient;
     }
 
+    @Cacheable(value = "metrics", key = "#request")
     public List<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
 
         List<MiningCommit> miningResult = mineWorkerClient.getMiningResult(

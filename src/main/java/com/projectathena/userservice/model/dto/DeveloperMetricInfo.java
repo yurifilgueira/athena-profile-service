@@ -2,11 +2,16 @@ package com.projectathena.userservice.model.dto;
 
 import com.projectathena.userservice.model.enums.MetricType;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeveloperMetricInfo {
+public class DeveloperMetricInfo implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private String developerUsername;
     private String developerEmail;
