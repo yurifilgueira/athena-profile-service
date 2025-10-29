@@ -29,7 +29,6 @@ public class MetricService {
         this.reportClient = reportClient;
     }
 
-    @Cacheable(value = "metrics", key = "#request")
     public List<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
 
         List<MiningCommit> miningResult = mineWorkerClient.getMiningResult(
