@@ -1,5 +1,6 @@
 package com.projectathena.userservice.services;
 
+import com.projectathena.userservice.cache.CacheTemplate;
 import com.projectathena.userservice.calculators.CalculatorFactory;
 import com.projectathena.userservice.clients.MineWorkerClient;
 import com.projectathena.userservice.clients.ReportClient;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -24,11 +26,20 @@ public class MetricService {
     private final CalculatorFactory calculatorFactory;
     private final MineWorkerClient mineWorkerClient;
     private final ReportClient reportClient;
+    private final CacheTemplate<String, List<DeveloperMetricInfo>> metricsTemplate;
+    private final CacheTemplate<String, List<ReportResponse>> reportTemplate;
 
-    public MetricService(CalculatorFactory calculatorFactory, MineWorkerClient mineWorkerClient, ReportClient reportClient) {
+    public MetricService(CalculatorFactory calculatorFactory, MineWorkerClient mineWorkerClient, ReportClient reportClient, CacheTemplate<String, List<DeveloperMetricInfo>> metricsTemplate, CacheTemplate<String, List<ReportResponse>> reportTemplate) {
         this.calculatorFactory = calculatorFactory;
         this.mineWorkerClient = mineWorkerClient;
         this.reportClient = reportClient;
+        this.metricsTemplate = metricsTemplate;
+        this.reportTemplate = reportTemplate;
+    }
+
+    private String createCacheKey(MetricRequest request) {
+        return request.userName() + ":" + request.userEmail() + ":" +
+                request.gitRepositoryName() + ":" + request.gitRepositoryOwner();
     }
 
     public Flux<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
@@ -75,7 +86,18 @@ public class MetricService {
     }
 
     public Flux<ReportResponse> getMetricReport(MetricRequest request) {
-        return mineAllMetrics(request).collectList()
-                .flatMapMany(reportClient::getReport);
+        String key = "report:" + createCacheKey(request);
+
+        Mono<List<ReportResponse>> cachedListMono =
+                reportTemplate.get(key, generateReport(request));
+
+        return cachedListMono.flatMapMany(Flux::fromIterable);
+    }
+
+    private Mono<List<ReportResponse>> generateReport(MetricRequest request) {
+        return mineAllMetrics(request)
+                .collectList()
+                .flatMapMany(reportClient::getReport)
+                .collectList();
     }
 }
