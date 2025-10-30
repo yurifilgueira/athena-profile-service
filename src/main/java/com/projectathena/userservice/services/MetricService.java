@@ -34,9 +34,7 @@ public class MetricService {
     }
 
     @Cacheable(value = "miningResults", key = "#request")
-
     public List<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
-
         logger.warn("Executed without cache...");
 
         MiningResult miningResult = mineWorkerClient.getMiningResult(
@@ -75,8 +73,8 @@ public class MetricService {
         }
     }
 
+    @Cacheable(value = "metricsReport", key = "#request")
     public ReportResult getMetricReport(MetricRequest request) {
-
         List<DeveloperMetricInfo> result = mineAllMetrics(request);
 
         return reportClient.createReport(result);
