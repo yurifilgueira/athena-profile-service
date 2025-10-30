@@ -42,13 +42,13 @@ public class MetricService {
                 request.gitRepositoryName() + ":" + request.gitRepositoryOwner();
     }
 
-    public Flux<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
+    private Mono<List<DeveloperMetricInfo>> getMetricsFromSource(MetricRequest request) {
         Mono<MiningResult> miningResultMono = mineWorkerClient.getMiningResult(
                 request.userName(),
                 request.userEmail(),
                 request.gitRepositoryName(),
                 request.gitRepositoryOwner()
-        ).cache();
+        );
 
         return Flux.fromIterable(MetricType.getAll())
                 .flatMap(metricType ->
@@ -57,7 +57,17 @@ public class MetricService {
                 )
                 .flatMap(calculator -> calculator.calculateMetric(miningResultMono.flatMapMany(miningResult -> Flux.fromIterable(miningResult.getCommits()).share())))
                 .groupBy(DeveloperMetricInfo::getDeveloperUsername)
-                .flatMap(groupedFlux -> groupedFlux.reduce(this::mergeDeveloperInfo));
+                .flatMap(groupedFlux -> groupedFlux.reduce(this::mergeDeveloperInfo))
+                .collectList();
+    }
+
+
+    public Flux<DeveloperMetricInfo> mineAllMetrics(MetricRequest request) {
+        String key = createCacheKey(request);
+        Mono<List<DeveloperMetricInfo>> cachedListMono =
+                metricsTemplate.get(key, Mono.defer(() -> getMetricsFromSource(request)));
+
+        return cachedListMono.flatMapMany(Flux::fromIterable);
     }
 
 
